@@ -201,10 +201,6 @@ RUN chmod +x scripts/worker_entrypoint
 
 COPY --chown=worker version.txt version.txt
 COPY --chown=worker settings.yaml settings.yaml
-# Ship the mock profile so the app can run the UI with no real LLM / GPU
-# (PGPT_PROFILES=mock). Without this, the mock profile file is missing from
-# the image and the settings loader raises FileNotFoundError at startup.
-COPY --chown=worker settings-mock.yaml settings-mock.yaml
 
 RUN --mount=type=cache,target=/root/.cache/uv uv pip install --python /home/worker/app/.venv/bin/python --no-deps .
 

@@ -2,10 +2,29 @@ application:
   name: private-gpt
   pods:
   - name: app
+    # Prebuilt 1.0.1 release image (public on Docker Hub; the runner mirrors it
+    # through mirror.gcr.io). The ghcr.io/zylon-ai/private-gpt:ollama image was
+    # gated (403 ImagePullBackOff) and also needed a separate Ollama GPU server.
+    image: docker.io/zylonai/private-gpt:latest
     path: /
     servicePorts:
     - 8080
     vars:
-      PGPT_PROFILES: mock
+      # Serve the Gradio UI at / on port 8080.
       PGPT_UI_PATH: "/"
       PORT: "8080"
+      # Run with NO real LLM and NO GPU. The prebuilt image does not ship
+      # settings-mock.yaml, so instead of PGPT_PROFILES=mock we configure the
+      # mock model registry purely via environment variables (the settings
+      # loader's PGPT_MODELS_<ID>_<PARAM> discovery + the default profile's
+      # ${PGPT_*} hooks). This boots the full web UI with mock LLM + mock
+      # embedding so no model is downloaded and no inference backend is needed.
+      PGPT_LLM_AUTO_DISCOVER_MODELS: "false"
+      PGPT_EMBEDDING_AUTO_DISCOVER_MODELS: "false"
+      PGPT_LLM_DEFAULT: "mockllm"
+      PGPT_EMBEDDING_DEFAULT: "mockembed"
+      PGPT_MODELS_MOCKLLM_TYPE: "llm"
+      PGPT_MODELS_MOCKLLM_MODE: "mock"
+      PGPT_MODELS_MOCKEMBED_TYPE: "embedding"
+      PGPT_MODELS_MOCKEMBED_MODE: "mock"
+      PGPT_MODELS_MOCKEMBED_CONTEXT__WINDOW: "384"
