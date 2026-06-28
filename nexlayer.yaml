@@ -2,14 +2,10 @@ application:
   name: private-gpt
   pods:
   - name: app
-    image: ghcr.io/zylon-ai/private-gpt:ollama
     path: /
     servicePorts:
-    - 8001
+    - 8080
     vars:
-      PGPT_PROFILES: ollama
-      OLLAMA_API_BASE: "http://localhost:11434"
-    volumes:
-    - name: private-gpt-data
-      mountPath: /home/worker/app/local_data
-      size: 5Gi
+      PGPT_PROFILES: mock
+      PGPT_UI_PATH: "/"
+      PORT: "8080"

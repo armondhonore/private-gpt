@@ -1,9 +1,71 @@
 server:
   env_name: ${APP_ENV:mock}
 
-# This configuration allows you to use hardware acceleration for creating embeddings while avoiding loading the full LLM into (video) memory.
+# Mock profile: runs the full web UI with NO real LLM and NO GPU.
+# The LLM and embedding models are mocked, so the app boots and serves
+# the UI without any model download or inference backend. Chat responses
+# are placeholder text. Use this to validate the deployment / UI surface.
+
+data:
+  local_data_folder: local_data/mock
+
+qdrant:
+  path: local_data/mock/qdrant
+  url: null
+
+stream:
+  broker: memory
+
+vectorstore:
+  database: qdrant
+  embed_dim: 384
+  multitenancy: logical
+  default_collection: mock
+
+observability:
+  mode: none
+
+models:
+  - name: mock
+    type: llm
+    mode: mock
+    context_window: 4096
+    support_reasoning: true
+  - name: mock
+    type: embedding
+    mode: mock
+    context_window: 384
+
 llm:
-  mode: mock
+  default_model: mock
+  auto_discover_models: false
 
 embedding:
-  mode: local
+  default_model: mock
+  auto_discover_models: false
+
+celery:
+  use_workers: false
+  broker_mode: local
+  backend_mode: local
+  acks_late: true
+
+tasks_results_broker:
+  mode: none
+
+sentry:
+  enabled: false
+
+node_store:
+  index_store: simple
+  doc_store: simple
+  node_store: qdrant
+
+sandbox:
+  provider: null
+
+skills:
+  database: sqlite
+  storage_provider: local
+  skill_injection_mode: system_prompt
+  maximum_loaded_skills: 1
